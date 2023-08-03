@@ -4,62 +4,40 @@ const QRPortalWeb = require('@bot-whatsapp/portal')
 const BaileysProvider = require('@bot-whatsapp/provider/baileys')
 const JsonFileAdapter = require('@bot-whatsapp/database/json')
 
-const flowSecundario = addKeyword(['2', 'siguiente']).addAnswer(['📄 Aquí tenemos el flujo secundario'])
+const flujoAgregar = require("./components/flujoAgregar.js")
+const flujoCarta = require("./components/flujoCarta.js")
+const flujoCuenta = require("./components/flujoCuenta.js")
+const flujoMozo = require("./components/flujoMozo.js")
+const flujoPedido = require("./components/flujoPedido.js")
 
-const flowDocs = addKeyword(['doc', 'documentacion', 'documentación']).addAnswer(
-    [
-        '📄 Aquí encontras las documentación recuerda que puedes mejorarla',
-        'https://bot-whatsapp.netlify.app/',
-        '\n*2* Para siguiente paso.',
-    ],
-    null,
-    null,
-    [flowSecundario]
-)
+const {deletePedidosData} = require("./components/auxPedidos.js")
 
-const flowTuto = addKeyword(['tutorial', 'tuto']).addAnswer(
-    [
-        '🙌 Aquí encontras un ejemplo rapido',
-        'https://bot-whatsapp.netlify.app/docs/example/',
-        '\n*2* Para siguiente paso.',
-    ],
-    null,
-    null,
-    [flowSecundario]
-)
-
-const flowGracias = addKeyword(['gracias', 'grac']).addAnswer(
-    [
-        '🚀 Puedes aportar tu granito de arena a este proyecto',
-        '[*opencollective*] https://opencollective.com/bot-whatsapp',
-        '[*buymeacoffee*] https://www.buymeacoffee.com/leifermendez',
-        '[*patreon*] https://www.patreon.com/leifermendez',
-        '\n*2* Para siguiente paso.',
-    ],
-    null,
-    null,
-    [flowSecundario]
-)
-
-const flowDiscord = addKeyword(['discord']).addAnswer(
-    ['🤪 Únete al discord', 'https://link.codigoencasa.com/DISCORD', '\n*2* Para siguiente paso.'],
-    null,
-    null,
-    [flowSecundario]
-)
-
-const flowPrincipal = addKeyword(['hola', 'ole', 'alo'])
-    .addAnswer('🙌 Hola bienvenido a este *Chatbot*')
+const flowPrincipal = addKeyword(['menu'])
+    .addAnswer('Hola bienvenido a RestoBot')
     .addAnswer(
         [
-            'te comparto los siguientes links de interes sobre el proyecto',
-            '👉 *doc* para ver la documentación',
-            '👉 *gracias*  para ver la lista de videos',
-            '👉 *discord* unirte al discord',
+            'Elija la opcion deseada',
+            '1. Ver la carta',
+            '2. Realizar un pedido',
+            '3. Agregar algo a un pedido',
+            '4. Llamar al mozo',
+            '5. Pedir la cuenta',
+            '6. Salir'
         ],
-        null,
-        null,
-        [flowDocs, flowGracias, flowTuto, flowDiscord]
+        {
+            capture:true
+        },
+        async (ctx, {flowDynamic,endFlow}) => {
+
+            deletePedidosData(ctx.from)
+            
+            if(ctx.body === "6"){
+                await flowDynamic(['Gracias por utilizar este servicio','Escriba Menu para volver a comenzar'])
+                return endFlow()
+            }
+        
+        },
+        [flujoCarta,flujoPedido,flujoAgregar,flujoMozo,flujoCuenta]
     )
 
 const main = async () => {
