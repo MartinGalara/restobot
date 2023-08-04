@@ -1,23 +1,51 @@
 const { addKeyword } = require('@bot-whatsapp/bot')
 
-const {addProps,getProp,enviarPedido} = require('./auxPedidos.js')
+const {addProps,getProp,enviarPedido,esNumeroPositivo} = require('./auxPedidos.js')
 
-const flujoPedido = addKeyword('2')
+const flujoPedido = addKeyword(['2','pedir'])
 .addAnswer('Indique su numero de mesa',
 {
     capture: true
 },
-(ctx) => {
+async (ctx,{fallBack,provider}) => {
 
-    addProps(ctx.from,{mesa: ctx.body})
+    const bool = esNumeroPositivo(ctx.body)
+    if(bool){
+        addProps(ctx.from,{mesa: ctx.body})
+    }
+    else{
+        const prov = provider.getInstance()
+        const telefono = ctx.from + '@s.whatsapp.net'
+        await prov.sendMessage(telefono,{text: "Esta opcion solo admite numeros"})
+        fallBack()
+    }
+
+    
 })
 .addAnswer('Cuantos comensales son ?',
 {
     capture: true
 },
-(ctx) => {
+async (ctx,{fallBack,provider}) => {
 
-    addProps(ctx.from,{comensales: ctx.body})
+    const bool = esNumeroPositivo(ctx.body)
+    if(bool){
+        if(Number(ctx.body) > 0 && Number(ctx.body) < 11){
+        addProps(ctx.from,{comensales: ctx.body})
+        }else{
+            const prov = provider.getInstance()
+            const telefono = ctx.from + '@s.whatsapp.net'
+            await prov.sendMessage(telefono,{text: "El maximo de comensales es 10"})
+            fallBack()
+        }
+    }
+    else{
+        const prov = provider.getInstance()
+        const telefono = ctx.from + '@s.whatsapp.net'
+        await prov.sendMessage(telefono,{text: "Esta opcion solo admite numeros"})
+        fallBack()
+    }
+
 })
 .addAnswer('Que va a comer el comensal N° 1 ?',
 {

@@ -62,4 +62,14 @@ const prov = provider.getInstance()
 
 }
 
-module.exports = {addProps,deletePedidosData,getProp,enviarPedido,agregarItems}
+const esNumeroPositivo = (str) => {
+  const numero = Number(str);
+
+  if (!isNaN(numero) && numero > 0) {
+    return true; 
+  } else {
+    return false; 
+  }
+}
+
+module.exports = {esNumeroPositivo,addProps,deletePedidosData,getProp,enviarPedido,agregarItems}
