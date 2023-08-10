@@ -10,29 +10,56 @@ const flujoCuenta = require("./components/flujoCuenta.js")
 const flujoMozo = require("./components/flujoMozo.js")
 const flujoPedido = require("./components/flujoPedido.js")
 
-const {deletePedidosData} = require("./components/auxPedidos.js")
+const {verificarMesa} = require("./components/auxPedidos.js")
+const {isOwner} = require("./components/auxClientes.js")
+const {enviarQrs} = require("./components/auxQrs.js")
 
-const flowPrincipal = addKeyword(['menu'])
-    .addAnswer('Hola bienvenido a RestoBot')
+const flowPrincipal = addKeyword(['vMozo'])
+    .addAnswer('Hola bienvenido a vMozo',{},
+    async (ctx,{flowDynamic,endFlow}) => {
+
+        const validator = verificarMesa(ctx.body,ctx.from)
+
+        if(!validator){
+            return endFlow('No se detecto una mesa. Por favor escanee el QR de la mesa para volver a comenzar')
+        }
+
+        const flag = isOwner(ctx.from)
+
+        if(flag){
+            setTimeout(()=> {
+                flowDynamic([
+                    '1. Ver la carta\n2. Realizar un pedido\n3. Agregar algo a un pedido\n4. Llamar al mozo\n5. Pedir la cuenta\n6. Descargar QRs\n7. Salir'])
+                },500)
+        }else{
+            setTimeout(()=> {
+                flowDynamic([
+                    '1. Ver la carta\n2. Realizar un pedido\n3. Agregar algo a un pedido\n4. Llamar al mozo\n5. Pedir la cuenta\n6. Salir'])
+                },500)
+        }
+       
+    })
     .addAnswer(
         [
-            'Elija la opcion deseada',
-            '1. Ver la carta',
-            '2. Realizar un pedido',
-            '3. Agregar algo a un pedido',
-            '4. Llamar al mozo',
-            '5. Pedir la cuenta',
-            '6. Salir'
+            'Elija la opcion deseada'
         ],
         {
             capture:true
         },
-        async (ctx, {flowDynamic,endFlow}) => {
+        async (ctx, {flowDynamic,endFlow,provider}) => {
 
-            deletePedidosData(ctx.from)
+            //deletePedidosData(ctx.from)
             
-            if(ctx.body === "6"){
-                await flowDynamic(['Gracias por utilizar este servicio','Escriba Menu para volver a comenzar'])
+            if(!isOwner(ctx.from) && ctx.body === "6"){
+                await flowDynamic(['Gracias por utilizar este servicio','Escriba vMozo para volver a comenzar'])
+                return endFlow()
+            }
+            if(isOwner(ctx.from) && ctx.body === "7"){
+                await flowDynamic(['Gracias por utilizar este servicio','Escriba vMozo para volver a comenzar'])
+                return endFlow()
+            }
+            if(isOwner(ctx.from) && ctx.body === "6"){
+                await enviarQrs(ctx.from,provider);
                 return endFlow()
             }
         

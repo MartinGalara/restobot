@@ -17,7 +17,7 @@ async (ctx,{provider,endFlow}) => {
      if(ctx.body === "salir"){
         const prov = provider.getInstance()
         const telefono = ctx.from + '@s.whatsapp.net'
-        await prov.sendMessage(telefono,{text: "Escribe menu para volver a comenzar."})
+        await prov.sendMessage(telefono,{text: "Escribe vMozo para volver a comenzar."})
         return endFlow()
     } 
 },[flujoPedido])

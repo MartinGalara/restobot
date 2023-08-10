@@ -3,25 +3,6 @@ const { addKeyword } = require('@bot-whatsapp/bot')
 const {addProps,getProp,enviarPedido,esNumeroPositivo} = require('./auxPedidos.js')
 
 const flujoPedido = addKeyword(['2','pedir'])
-.addAnswer('Indique su numero de mesa',
-{
-    capture: true
-},
-async (ctx,{fallBack,provider}) => {
-
-    const bool = esNumeroPositivo(ctx.body)
-    if(bool){
-        addProps(ctx.from,{mesa: ctx.body})
-    }
-    else{
-        const prov = provider.getInstance()
-        const telefono = ctx.from + '@s.whatsapp.net'
-        await prov.sendMessage(telefono,{text: "Esta opcion solo admite numeros"})
-        fallBack()
-    }
-
-    
-})
 .addAnswer('Cuantos comensales son ?',
 {
     capture: true
@@ -42,7 +23,7 @@ async (ctx,{fallBack,provider}) => {
     else{
         const prov = provider.getInstance()
         const telefono = ctx.from + '@s.whatsapp.net'
-        await prov.sendMessage(telefono,{text: "Esta opcion solo admite numeros"})
+        await prov.sendMessage(telefono,{text: "Esta opcion solo admite numeros positivos"})
         fallBack()
     }
 
